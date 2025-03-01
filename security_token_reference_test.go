@@ -21,16 +21,16 @@ func Test_SecurityTokenReference_LoadXml_InvalidElement(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	testCaseResolver := xml.NewXmlResolver(testCaseDocument)
+	testCaseContext := xml.NewContext(testCaseDocument)
 
 	// Create test case SecurityTokenReference
-	testCaseSecurityTokenReference, err := NewSecurityTokenReference(testCaseResolver)
+	testCaseSecurityTokenReference, err := NewSecurityTokenReference(testCaseContext)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Load test case SecurityTokenReference
-	err = testCaseSecurityTokenReference.LoadXml(testCaseResolver, testCaseDocument.Root())
+	err = testCaseSecurityTokenReference.LoadXml(testCaseContext, testCaseDocument.Root())
 	if err != xml.ErrInvalidElementTag {
 		t.Fatal(err)
 	}
@@ -69,17 +69,17 @@ func Test_SecurityTokenReference_LoadXml(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	testCaseResolver := xml.NewXmlResolver(testCaseDocument)
-	testCaseResolver.SetNamespacePrefix("wsu", WsuNamespace)
+	testCaseContext := xml.NewContext(testCaseDocument)
+	testCaseContext.SetNamespacePrefix("wsu", WsuNamespace)
 
 	// Create test case Reference
-	testCaseSecurityTokenReference, err := NewSecurityTokenReference(testCaseResolver)
+	testCaseSecurityTokenReference, err := NewSecurityTokenReference(testCaseContext)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Load test case Reference
-	err = testCaseSecurityTokenReference.LoadXml(testCaseResolver, testCaseDocument.Root())
+	err = testCaseSecurityTokenReference.LoadXml(testCaseContext, testCaseDocument.Root())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -129,19 +129,19 @@ func Test_SecurityTokenReference_LoadXml_WithReference(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	testCaseResolver := xml.NewXmlResolver(testCaseDocument)
-	testCaseResolver.SetNamespacePrefix("wsu", WsuNamespace)
-	testCaseResolver.SetNamespacePrefix("wsse", WsseNamespace)
-	testCaseResolver.RegisterTypeConstructor(WsseNamespace, "Reference", NewReferenceNode)
+	testCaseContext := xml.NewContext(testCaseDocument)
+	testCaseContext.SetNamespacePrefix("wsu", WsuNamespace)
+	testCaseContext.SetNamespacePrefix("wsse", WsseNamespace)
+	testCaseContext.RegisterTypeConstructor(WsseNamespace, "Reference", NewReferenceNode)
 
 	// Create test case Reference
-	testCaseSecurityTokenReference, err := NewSecurityTokenReference(testCaseResolver)
+	testCaseSecurityTokenReference, err := NewSecurityTokenReference(testCaseContext)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Load test case Reference
-	err = testCaseSecurityTokenReference.LoadXml(testCaseResolver, testCaseDocument.Root())
+	err = testCaseSecurityTokenReference.LoadXml(testCaseContext, testCaseDocument.Root())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -199,12 +199,12 @@ func Test_SecurityTokenReference_GetXml(t *testing.T) {
 
 	// Prepare the test case
 	testCaseDocument := etree.NewDocument()
-	testCaseResolver := xml.NewXmlResolver(testCaseDocument)
-	testCaseResolver.SetNamespacePrefix("wsse", WsseNamespace)
-	testCaseResolver.SetNamespacePrefix("wsu", WsuNamespace)
+	testCaseContext := xml.NewContext(testCaseDocument)
+	testCaseContext.SetNamespacePrefix("wsse", WsseNamespace)
+	testCaseContext.SetNamespacePrefix("wsu", WsuNamespace)
 
 	// Create test case SecurityTokenReference
-	testCaseSecurityTokenReference, err := NewSecurityTokenReference(testCaseResolver)
+	testCaseSecurityTokenReference, err := NewSecurityTokenReference(testCaseContext)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -213,7 +213,7 @@ func Test_SecurityTokenReference_GetXml(t *testing.T) {
 	testCaseSecurityTokenReference.SetTokenType(testCase.tokenType)
 
 	// Get test case SecurityTokenReference XML
-	testCaseSecurityTokenReferenceElement, err := testCaseSecurityTokenReference.GetXml(testCaseResolver)
+	testCaseSecurityTokenReferenceElement, err := testCaseSecurityTokenReference.GetXml(testCaseContext)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -265,12 +265,12 @@ func Test_SecurityTokenReference_GetXml_WithReference(t *testing.T) {
 
 	// Prepare the test case
 	testCaseDocument := etree.NewDocument()
-	testCaseResolver := xml.NewXmlResolver(testCaseDocument)
-	testCaseResolver.SetNamespacePrefix("wsse", WsseNamespace)
-	testCaseResolver.SetNamespacePrefix("wsu", WsuNamespace)
+	testCaseContext := xml.NewContext(testCaseDocument)
+	testCaseContext.SetNamespacePrefix("wsse", WsseNamespace)
+	testCaseContext.SetNamespacePrefix("wsu", WsuNamespace)
 
 	// Create test case SecurityTokenReference
-	testCaseSecurityTokenReference, err := NewSecurityTokenReference(testCaseResolver)
+	testCaseSecurityTokenReference, err := NewSecurityTokenReference(testCaseContext)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -279,7 +279,7 @@ func Test_SecurityTokenReference_GetXml_WithReference(t *testing.T) {
 	testCaseSecurityTokenReference.SetTokenType(testCase.tokenType)
 
 	// Create test case Reference
-	testCaseReference, err := NewReference(testCaseResolver)
+	testCaseReference, err := NewReference(testCaseContext)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -287,7 +287,7 @@ func Test_SecurityTokenReference_GetXml_WithReference(t *testing.T) {
 	testCaseSecurityTokenReference.SetContent(testCaseReference)
 
 	// Get test case SecurityTokenReference XML
-	testCaseSecurityTokenReferenceElement, err := testCaseSecurityTokenReference.GetXml(testCaseResolver)
+	testCaseSecurityTokenReferenceElement, err := testCaseSecurityTokenReference.GetXml(testCaseContext)
 	if err != nil {
 		t.Fatal(err)
 	}

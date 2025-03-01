@@ -8,12 +8,12 @@ const (
 	Wsse11Namespace string = "http://docs.oasis-open.org/wss/oasis-wss-wssecurity-secext-1.1.xsd"
 )
 
-func ConfigureResolver(resolver xml.XmlResolver) {
-	resolver.SetNamespacePrefix("wsu", WsuNamespace)
-	resolver.SetNamespacePrefix("wsse", WsseNamespace)
-	resolver.SetNamespacePrefix("wsse11", Wsse11Namespace)
+func ConfigureContext(context xml.Context) {
+	context.SetNamespacePrefix("wsu", WsuNamespace)
+	context.SetNamespacePrefix("wsse", WsseNamespace)
+	context.SetNamespacePrefix("wsse11", Wsse11Namespace)
 
-	resolver.RegisterTypeConstructor(WsseNamespace, "BinarySecurityToken", NewBinarySecurityTokenNode)
-	resolver.RegisterTypeConstructor(WsseNamespace, "SecurityTokenReference", NewSecurityTokenReferenceNode)
-	resolver.RegisterTypeConstructor(WsseNamespace, "Reference", NewReferenceNode)
+	context.RegisterTypeConstructor(WsseNamespace, "BinarySecurityToken", NewBinarySecurityTokenNode)
+	context.RegisterTypeConstructor(WsseNamespace, "SecurityTokenReference", NewSecurityTokenReferenceNode)
+	context.RegisterTypeConstructor(WsseNamespace, "Reference", NewReferenceNode)
 }

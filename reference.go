@@ -10,7 +10,7 @@ import (
 )
 
 type Reference interface {
-	xml.XmlNode
+	xml.Node
 	X509CertificateProvider
 	GetUri() string
 	SetUri(uri string)
@@ -23,12 +23,12 @@ type reference struct {
 	ValueType string
 }
 
-func NewReference(resolver xml.XmlResolver) (Reference, error) {
+func NewReference(context xml.Context) (Reference, error) {
 	return &reference{}, nil
 }
 
-func NewReferenceNode(resolver xml.XmlResolver) (xml.XmlNode, error) {
-	return NewReference(resolver)
+func NewReferenceNode(context xml.Context) (xml.Node, error) {
+	return NewReference(context)
 }
 
 func (node *reference) GetUri() string {
@@ -47,23 +47,23 @@ func (node *reference) SetValueType(valueType string) {
 	node.ValueType = valueType
 }
 
-func (node *reference) GetX509Certificate(resolver xml.XmlResolver) (*x509.Certificate, error) {
+func (node *reference) GetX509Certificate(context xml.Context) (*x509.Certificate, error) {
 	if strings.HasPrefix(node.GetUri(), "#") {
 		uri := node.GetUri()[1:]
-		ref := resolver.GetDocument().FindElement("@Id='" + uri + "'")
+		ref := context.GetDocument().FindElement("@Id='" + uri + "'")
 		if ref == nil {
 			return nil, errors.New("reference not found")
 		}
 
-		refConstructor, err := resolver.GetTypeConstructor(ref.Space, ref.Tag)
+		refConstructor, err := context.GetTypeConstructor(ref.Space, ref.Tag)
 		if err != nil {
 			return nil, err
 		}
-		refNode, err := refConstructor(resolver)
+		refNode, err := refConstructor(context)
 		if err != nil {
 			return nil, err
 		}
-		err = refNode.LoadXml(resolver, ref)
+		err = refNode.LoadXml(context, ref)
 		if err != nil {
 			return nil, err
 		}
@@ -72,14 +72,14 @@ func (node *reference) GetX509Certificate(resolver xml.XmlResolver) (*x509.Certi
 		if !ok {
 			return nil, errors.New("reference not a X509CertificateProvider")
 		}
-		return provider.GetX509Certificate(resolver)
+		return provider.GetX509Certificate(context)
 
 	} else {
 		return nil, errors.New("unsupported URI format")
 	}
 }
 
-func (node *reference) LoadXml(resolver xml.XmlResolver, el *etree.Element) error {
+func (node *reference) LoadXml(context xml.Context, el *etree.Element) error {
 	err := xml.ValidateElement(el, "Reference", WsseNamespace)
 	if err != nil {
 		return err
@@ -91,9 +91,9 @@ func (node *reference) LoadXml(resolver xml.XmlResolver, el *etree.Element) erro
 	return nil
 }
 
-func (node *reference) GetXml(resolver xml.XmlResolver) (*etree.Element, error) {
+func (node *reference) GetXml(context xml.Context) (*etree.Element, error) {
 	el := etree.NewElement("Reference")
-	el.Space = resolver.GetNamespacePrefix(WsseNamespace)
+	el.Space = context.GetNamespacePrefix(WsseNamespace)
 
 	el.CreateAttr("URI", node.GetUri())
 	if node.GetValueType() != "" {

@@ -7,5 +7,5 @@ import (
 )
 
 type X509CertificateProvider interface {
-	GetX509Certificate(resolver xml.XmlResolver) (*x509.Certificate, error)
+	GetX509Certificate(context xml.Context) (*x509.Certificate, error)
 }
