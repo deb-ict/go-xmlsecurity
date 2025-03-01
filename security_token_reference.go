@@ -1,12 +1,16 @@
 package xmlsecurity
 
 import (
+	"crypto/x509"
+	"errors"
+
 	"github.com/beevik/etree"
 	"github.com/deb-ict/go-xml"
 )
 
 type SecurityTokenReference interface {
 	xml.XmlNode
+	X509CertificateProvider
 	GetId() string
 	SetId(id string)
 	GetUsage() string
@@ -62,6 +66,18 @@ func (node *securityTokenReference) GetContent() xml.XmlNode {
 
 func (node *securityTokenReference) SetContent(content xml.XmlNode) {
 	node.Content = content
+}
+
+func (node *securityTokenReference) GetX509Certificate(resolver xml.XmlResolver) (*x509.Certificate, error) {
+	if node.Content == nil {
+		return nil, errors.New("x509 certificate not available")
+	}
+	provider, ok := node.Content.(X509CertificateProvider)
+	if !ok {
+		return nil, errors.New("x509 certificate not available")
+	}
+
+	return provider.GetX509Certificate(resolver)
 }
 
 func (node *securityTokenReference) LoadXml(resolver xml.XmlResolver, el *etree.Element) error {

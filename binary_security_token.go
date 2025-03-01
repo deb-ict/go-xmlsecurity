@@ -1,12 +1,17 @@
 package xmlsecurity
 
 import (
+	"crypto/x509"
+	"encoding/base64"
+	"errors"
+
 	"github.com/beevik/etree"
 	"github.com/deb-ict/go-xml"
 )
 
 type BinarySecurityToken interface {
 	xml.XmlNode
+	X509CertificateProvider
 	GetId() string
 	SetId(id string)
 	GetValueType() string
@@ -62,6 +67,22 @@ func (node *binarySecurityToken) GetValue() string {
 
 func (node *binarySecurityToken) SetValue(value string) {
 	node.Value = value
+}
+
+func (node *binarySecurityToken) GetX509Certificate(resolver xml.XmlResolver) (*x509.Certificate, error) {
+	if node.GetValueType() != "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3" {
+		return nil, errors.New("invalid ValueType")
+	}
+	if node.EncodingType != "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary" {
+		return nil, errors.New("invalid EncodingType")
+	}
+
+	certificateBytes, err := base64.StdEncoding.DecodeString(node.GetValue())
+	if err != nil {
+		return nil, err
+	}
+
+	return x509.ParseCertificate(certificateBytes)
 }
 
 func (node *binarySecurityToken) LoadXml(resolver xml.XmlResolver, el *etree.Element) error {
