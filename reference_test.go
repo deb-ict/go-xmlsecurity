@@ -21,16 +21,16 @@ func Test_Reference_LoadXml_InvalidElement(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	testCaseResolver := xml.NewXmlResolver(testCaseDocument)
+	testCaseContext := xml.NewContext(testCaseDocument)
 
 	// Create test case Reference
-	testCaseReference, err := NewReference(testCaseResolver)
+	testCaseReference, err := NewReference(testCaseContext)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Load test case Reference
-	err = testCaseReference.LoadXml(testCaseResolver, testCaseDocument.Root())
+	err = testCaseReference.LoadXml(testCaseContext, testCaseDocument.Root())
 	if err != xml.ErrInvalidElementTag {
 		t.Fatal(err)
 	}
@@ -64,16 +64,16 @@ func Test_Reference_LoadXml(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	testCaseResolver := xml.NewXmlResolver(testCaseDocument)
+	testCaseContext := xml.NewContext(testCaseDocument)
 
 	// Create test case Reference
-	testCaseReference, err := NewReference(testCaseResolver)
+	testCaseReference, err := NewReference(testCaseContext)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Load test case Reference
-	err = testCaseReference.LoadXml(testCaseResolver, testCaseDocument.Root())
+	err = testCaseReference.LoadXml(testCaseContext, testCaseDocument.Root())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -111,15 +111,15 @@ func Test_Reference_GetXml(t *testing.T) {
 
 	// Prepare the test case
 	testCaseDocument := etree.NewDocument()
-	testCaseResolver := xml.NewXmlResolver(testCaseDocument)
-	testCaseResolver.SetNamespacePrefix("wsse", WsseNamespace)
+	testCaseContext := xml.NewContext(testCaseDocument)
+	testCaseContext.SetNamespacePrefix("wsse", WsseNamespace)
 	err := testCaseDocument.ReadFromString(testCaseXml)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Create test case Reference
-	testCaseReference, err := NewReference(testCaseResolver)
+	testCaseReference, err := NewReference(testCaseContext)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -127,7 +127,7 @@ func Test_Reference_GetXml(t *testing.T) {
 	testCaseReference.SetValueType(testCase.valueType)
 
 	// Get test case Reference XML
-	testCaseReferenceElement, err := testCaseReference.GetXml(testCaseResolver)
+	testCaseReferenceElement, err := testCaseReference.GetXml(testCaseContext)
 	if err != nil {
 		t.Fatal(err)
 	}

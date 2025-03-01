@@ -1,35 +1,39 @@
 package xmlsecurity
 
 import (
+	"crypto/x509"
+	"errors"
+
 	"github.com/beevik/etree"
 	"github.com/deb-ict/go-xml"
 )
 
 type SecurityTokenReference interface {
-	xml.XmlNode
+	xml.Node
+	X509CertificateProvider
 	GetId() string
 	SetId(id string)
 	GetUsage() string
 	SetUsage(usage string)
 	GetTokenType() string
 	SetTokenType(tokenType string)
-	GetContent() xml.XmlNode
-	SetContent(content xml.XmlNode)
+	GetContent() xml.Node
+	SetContent(content xml.Node)
 }
 
 type securityTokenReference struct {
 	Id        string
 	Usage     string
 	TokenType string
-	Content   xml.XmlNode
+	Content   xml.Node
 }
 
-func NewSecurityTokenReference(resolver xml.XmlResolver) (SecurityTokenReference, error) {
+func NewSecurityTokenReference(context xml.Context) (SecurityTokenReference, error) {
 	return &securityTokenReference{}, nil
 }
 
-func NewSecurityTokenReferenceNode(resolver xml.XmlResolver) (xml.XmlNode, error) {
-	return NewSecurityTokenReference(resolver)
+func NewSecurityTokenReferenceNode(context xml.Context) (xml.Node, error) {
+	return NewSecurityTokenReference(context)
 }
 
 func (node *securityTokenReference) GetId() string {
@@ -56,27 +60,39 @@ func (node *securityTokenReference) SetTokenType(tokenType string) {
 	node.TokenType = tokenType
 }
 
-func (node *securityTokenReference) GetContent() xml.XmlNode {
+func (node *securityTokenReference) GetContent() xml.Node {
 	return node.Content
 }
 
-func (node *securityTokenReference) SetContent(content xml.XmlNode) {
+func (node *securityTokenReference) SetContent(content xml.Node) {
 	node.Content = content
 }
 
-func (node *securityTokenReference) LoadXml(resolver xml.XmlResolver, el *etree.Element) error {
+func (node *securityTokenReference) GetX509Certificate(context xml.Context) (*x509.Certificate, error) {
+	if node.Content == nil {
+		return nil, errors.New("x509 certificate not available")
+	}
+	provider, ok := node.Content.(X509CertificateProvider)
+	if !ok {
+		return nil, errors.New("x509 certificate not available")
+	}
+
+	return provider.GetX509Certificate(context)
+}
+
+func (node *securityTokenReference) LoadXml(context xml.Context, el *etree.Element) error {
 	err := xml.ValidateElement(el, "SecurityTokenReference", WsseNamespace)
 	if err != nil {
 		return err
 	}
 
-	node.SetId(GetWsuId(resolver, el))
+	node.SetId(GetWsuId(context, el))
 	node.SetUsage(el.SelectAttrValue("Usage", ""))
 	node.SetTokenType(el.SelectAttrValue("TokenType", ""))
 
 	for _, child := range el.ChildElements() {
-		namespaceUri := resolver.GetNamespaceUri(child.Space)
-		typeConstructor, err := resolver.GetTypeConstructor(namespaceUri, child.Tag)
+		namespaceUri := context.GetNamespaceUri(child.Space)
+		typeConstructor, err := context.GetTypeConstructor(namespaceUri, child.Tag)
 		if err == xml.ErrNoTypeConstructor {
 			continue
 		}
@@ -84,11 +100,11 @@ func (node *securityTokenReference) LoadXml(resolver xml.XmlResolver, el *etree.
 			return err
 		}
 
-		content, err := typeConstructor(resolver)
+		content, err := typeConstructor(context)
 		if err != nil {
 			return err
 		}
-		err = content.LoadXml(resolver, child)
+		err = content.LoadXml(context, child)
 		if err != nil {
 			return err
 		}
@@ -98,12 +114,12 @@ func (node *securityTokenReference) LoadXml(resolver xml.XmlResolver, el *etree.
 	return nil
 }
 
-func (node *securityTokenReference) GetXml(resolver xml.XmlResolver) (*etree.Element, error) {
+func (node *securityTokenReference) GetXml(context xml.Context) (*etree.Element, error) {
 	el := etree.NewElement("SecurityTokenReference")
-	el.Space = resolver.GetNamespacePrefix(WsseNamespace)
+	el.Space = context.GetNamespacePrefix(WsseNamespace)
 
 	if node.GetId() != "" {
-		SetWsuId(resolver, el, node.GetId())
+		SetWsuId(context, el, node.GetId())
 	}
 	if node.GetUsage() != "" {
 		el.CreateAttr("Usage", node.GetUsage())
@@ -113,7 +129,7 @@ func (node *securityTokenReference) GetXml(resolver xml.XmlResolver) (*etree.Ele
 	}
 
 	if node.GetContent() != nil {
-		contentEl, err := node.GetContent().GetXml(resolver)
+		contentEl, err := node.GetContent().GetXml(context)
 		if err != nil {
 			return nil, err
 		}

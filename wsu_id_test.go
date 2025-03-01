@@ -30,11 +30,11 @@ func Test_GetWsuId(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		testCaseResolver := xml.NewXmlResolver(testCaseDocument)
-		testCaseResolver.SetNamespacePrefix("wsu", WsuNamespace)
+		testCaseContext := xml.NewContext(testCaseDocument)
+		testCaseContext.SetNamespacePrefix("wsu", WsuNamespace)
 
 		// Get test case wsu:Id
-		wsuId := GetWsuId(testCaseResolver, testCaseDocument.Root())
+		wsuId := GetWsuId(testCaseContext, testCaseDocument.Root())
 		if wsuId != tc.id {
 			t.Fatal(wsuId)
 		}
@@ -72,12 +72,12 @@ func Test_SetWsuId(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		testCaseResolver := xml.NewXmlResolver(testCaseDocument)
-		testCaseResolver.SetNamespacePrefix("wsu", WsuNamespace)
+		testCaseContext := xml.NewContext(testCaseDocument)
+		testCaseContext.SetNamespacePrefix("wsu", WsuNamespace)
 
 		// Set test case wsu:Id
 		if tc.newId != "" {
-			SetWsuId(testCaseResolver, testCaseDocument.Root(), tc.newId)
+			SetWsuId(testCaseContext, testCaseDocument.Root(), tc.newId)
 		}
 		resultXml, err := testCaseDocument.WriteToString()
 		if err != nil {

@@ -21,16 +21,16 @@ func Test_BinarySecurityToken_LoadXml_InvalidElement(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	testCaseResolver := xml.NewXmlResolver(testCaseDocument)
+	testCaseContext := xml.NewContext(testCaseDocument)
 
 	// Create test case BinarySecurityToken
-	testCaseBinarySecurityToken, err := NewBinarySecurityToken(testCaseResolver)
+	testCaseBinarySecurityToken, err := NewBinarySecurityToken(testCaseContext)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Load test case BinarySecurityToken
-	err = testCaseBinarySecurityToken.LoadXml(testCaseResolver, testCaseDocument.Root())
+	err = testCaseBinarySecurityToken.LoadXml(testCaseContext, testCaseDocument.Root())
 	if err != xml.ErrInvalidElementTag {
 		t.Fatal(err)
 	}
@@ -73,17 +73,17 @@ func Test_BinarySecurityToken_LoadXml(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	testCaseResolver := xml.NewXmlResolver(testCaseDocument)
-	testCaseResolver.SetNamespacePrefix("wsu", WsuNamespace)
+	testCaseContext := xml.NewContext(testCaseDocument)
+	testCaseContext.SetNamespacePrefix("wsu", WsuNamespace)
 
 	// Create test case BinarySecurityToken
-	testCaseBinarySecurityToken, err := NewBinarySecurityToken(testCaseResolver)
+	testCaseBinarySecurityToken, err := NewBinarySecurityToken(testCaseContext)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Load test case BinarySecurityToken
-	err = testCaseBinarySecurityToken.LoadXml(testCaseResolver, testCaseDocument.Root())
+	err = testCaseBinarySecurityToken.LoadXml(testCaseContext, testCaseDocument.Root())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -136,12 +136,12 @@ func Test_BinarySecurityToken_GetXml(t *testing.T) {
 
 	// Prepare the test case
 	testCaseDocument := etree.NewDocument()
-	testCaseResolver := xml.NewXmlResolver(testCaseDocument)
-	testCaseResolver.SetNamespacePrefix("wsse", WsseNamespace)
-	testCaseResolver.SetNamespacePrefix("wsu", WsuNamespace)
+	testCaseContext := xml.NewContext(testCaseDocument)
+	testCaseContext.SetNamespacePrefix("wsse", WsseNamespace)
+	testCaseContext.SetNamespacePrefix("wsu", WsuNamespace)
 
 	// Create test case BinarySecurityToken
-	testCaseBinarySecurityToken, err := NewBinarySecurityToken(testCaseResolver)
+	testCaseBinarySecurityToken, err := NewBinarySecurityToken(testCaseContext)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -151,7 +151,7 @@ func Test_BinarySecurityToken_GetXml(t *testing.T) {
 	testCaseBinarySecurityToken.SetValue(testCase.value)
 
 	// Get test case BinarySecurityToken XML
-	testCaseBinarySecurityTokenElement, err := testCaseBinarySecurityToken.GetXml(testCaseResolver)
+	testCaseBinarySecurityTokenElement, err := testCaseBinarySecurityToken.GetXml(testCaseContext)
 	if err != nil {
 		t.Fatal(err)
 	}
